@@ -21,6 +21,8 @@ class ResultsViewController: UIViewController, UITableViewDataSource, UITableVie
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        title = "Similar Products"
+        
         // Dummy info
         if let product = Mapper<Product>().map(JSON: ["imageUrl": "https://images-na.ssl-images-amazon.com/images/I/51Rf7pJ8vrL._SX466_.jpg",
                                                    "productTitle": "Kit Kat Valentines Fun SIze Bars (32 Ounce)",
