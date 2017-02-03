@@ -26,13 +26,40 @@ class CameraViewController: UIViewController, UIImagePickerControllerDelegate, U
         spinner.color = UIColor.lightGray
         spinner.hidesWhenStopped = true
         
-        showCamera()
+//        showCamera()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
         spinner.center = view.center
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        spinner.startAnimating()
+        
+        PVSessionManager.sharedManager.searchAmazon(searchQuery: "Miller Lite", completionHandler: { (success, error, response) -> Void in
+            
+            DispatchQueue.main.async {
+                self.spinner.stopAnimating()
+            }
+            
+            if (success) {
+                if let response = response
+                {
+                    print(response)
+                }
+            }
+            else {
+                if let error = error
+                {
+                    print(error)
+                    
+                }
+            }
+        })
     }
     
     // MARK: Actions
@@ -54,20 +81,19 @@ class CameraViewController: UIViewController, UIImagePickerControllerDelegate, U
         // Here's the image we picked
         if let chosenImage = info[UIImagePickerControllerOriginalImage] as? UIImage
         {
-            PVSessionManager.sharedManager.analyzeImage(image: chosenImage, completionHandler: { (success, error, response) -> Void in
+            
+            PVSessionManager.sharedManager.findSimilarProducts(image: chosenImage, completionHandler: { (success, error, response) -> Void in
                 
                 if (success) {
                     // SUCCESS! Proceed
                 }
                 else {
-                    if let errorMessage = error?.localizedCapitalized
+                    if let errorMessage = error
                     {
                         print(errorMessage)
                     }
                 }
-                
             })
-
         }
         
         dismiss(animated:true, completion: nil)

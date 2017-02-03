@@ -10,5 +10,6 @@ target 'ProductVision' do
   pod 'SwiftyJSON'
   pod 'ObjectMapper'
   pod 'SDWebImage'
+  pod 'SWXMLHash', '~> 3.0.0'
 
 end

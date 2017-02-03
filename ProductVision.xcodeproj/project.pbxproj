@@ -8,7 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		5938BC3F46796E6D4E4200F3 /* Pods_ProductVision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC0E22A021DB0DF08E78B05A /* Pods_ProductVision.framework */; };
-		7063C3761E43EC0F00C85FB2 /* ResizeImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7063C3751E43EC0F00C85FB2 /* ResizeImage.swift */; };
+		7063C3781E43F7C100C85FB2 /* DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7063C3771E43F7C100C85FB2 /* DateFormatter.swift */; };
+		7063C37D1E44216100C85FB2 /* StringFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7063C37C1E44216100C85FB2 /* StringFormatting.swift */; };
+		7063C37F1E442B8200C85FB2 /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7063C37E1E442B8200C85FB2 /* Crypto.swift */; };
 		709A7A141E43B6E800135282 /* Keys.plist in Resources */ = {isa = PBXBuildFile; fileRef = 709A7A131E43B6E800135282 /* Keys.plist */; };
 		70ED378B1E42DB9800388ED5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70ED378A1E42DB9800388ED5 /* AppDelegate.swift */; };
 		70ED378D1E42DB9800388ED5 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70ED378C1E42DB9800388ED5 /* CameraViewController.swift */; };
@@ -23,7 +25,10 @@
 
 /* Begin PBXFileReference section */
 		03F2E1B2ECF1AA55CA72EF59 /* Pods-ProductVision.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ProductVision.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ProductVision/Pods-ProductVision.debug.xcconfig"; sourceTree = "<group>"; };
-		7063C3751E43EC0F00C85FB2 /* ResizeImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResizeImage.swift; sourceTree = "<group>"; };
+		7063C3771E43F7C100C85FB2 /* DateFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateFormatter.swift; sourceTree = "<group>"; };
+		7063C3791E43FB3F00C85FB2 /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
+		7063C37C1E44216100C85FB2 /* StringFormatting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringFormatting.swift; sourceTree = "<group>"; };
+		7063C37E1E442B8200C85FB2 /* Crypto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Crypto.swift; sourceTree = "<group>"; };
 		709A7A131E43B6E800135282 /* Keys.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keys.plist; sourceTree = "<group>"; };
 		70ED37871E42DB9800388ED5 /* ProductVision.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProductVision.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		70ED378A1E42DB9800388ED5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -74,8 +79,10 @@
 			isa = PBXGroup;
 			children = (
 				70ED378A1E42DB9800388ED5 /* AppDelegate.swift */,
-				7063C3751E43EC0F00C85FB2 /* ResizeImage.swift */,
+				7063C3771E43F7C100C85FB2 /* DateFormatter.swift */,
+				7063C37C1E44216100C85FB2 /* StringFormatting.swift */,
 				70ED379C1E42DD0D00388ED5 /* PVSessionManager.swift */,
+				7063C37E1E442B8200C85FB2 /* Crypto.swift */,
 				70ED37A31E42E42B00388ED5 /* Product.swift */,
 				70ED37A01E42DED200388ED5 /* View */,
 				70ED378E1E42DB9800388ED5 /* Main.storyboard */,
@@ -83,6 +90,7 @@
 				70ED37931E42DB9800388ED5 /* LaunchScreen.storyboard */,
 				70ED37961E42DB9800388ED5 /* Info.plist */,
 				709A7A131E43B6E800135282 /* Keys.plist */,
+				7063C3791E43FB3F00C85FB2 /* Bridging-Header.h */,
 			);
 			path = ProductVision;
 			sourceTree = "<group>";
@@ -239,10 +247,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7063C37D1E44216100C85FB2 /* StringFormatting.swift in Sources */,
 				70ED378D1E42DB9800388ED5 /* CameraViewController.swift in Sources */,
 				70ED37A21E42E34A00388ED5 /* ResultTableCell.swift in Sources */,
+				7063C37F1E442B8200C85FB2 /* Crypto.swift in Sources */,
 				70ED378B1E42DB9800388ED5 /* AppDelegate.swift in Sources */,
-				7063C3761E43EC0F00C85FB2 /* ResizeImage.swift in Sources */,
+				7063C3781E43F7C100C85FB2 /* DateFormatter.swift in Sources */,
 				70ED379D1E42DD0D00388ED5 /* PVSessionManager.swift in Sources */,
 				70ED379F1E42DECB00388ED5 /* ResultsViewController.swift in Sources */,
 				70ED37A41E42E42B00388ED5 /* Product.swift in Sources */,
@@ -372,6 +382,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.genesisapps.ProductVision;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "ProductVision/Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -386,6 +397,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.genesisapps.ProductVision;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "ProductVision/Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;

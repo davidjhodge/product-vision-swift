@@ -5,19 +5,22 @@ PODS:
     - SDWebImage/Core (= 3.8.2)
   - SDWebImage/Core (3.8.2)
   - SwiftyJSON (3.1.1)
+  - SWXMLHash (3.0.2)
 
 DEPENDENCIES:
   - Alamofire
   - ObjectMapper
   - SDWebImage
   - SwiftyJSON
+  - SWXMLHash (~> 3.0.0)
 
 SPEC CHECKSUMS:
   Alamofire: 7682d43245de14874acd142ec137b144aa1dd335
   ObjectMapper: e5e0f8aef8590fc2ddcde7f27eddb255863ee6e9
   SDWebImage: 098e97e6176540799c27e804c96653ee0833d13c
   SwiftyJSON: f0be2e604f83e8405a624e9f891898bf6ed4e019
+  SWXMLHash: e0f6935971f01b06fb228cf435510d998ecde647
 
-PODFILE CHECKSUM: 94ef132d593efd1386942b01c739c44e35a987d1
+PODFILE CHECKSUM: f4e114542e29a88f98a67b3f97d8f9ae34df2320
 
 COCOAPODS: 1.1.0.rc.3

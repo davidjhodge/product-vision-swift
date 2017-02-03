@@ -7,7 +7,8 @@
 //
 
 import Foundation
-import Alamofire
+import SWXMLHash
+import ObjectMapper
 
 typealias PVCompletionBlock = ((_ success: Bool, _ error: String?, _ response:Any?) -> Void)
 
@@ -15,10 +16,11 @@ class PVSessionManager: NSObject
 {
     static let sharedManager: PVSessionManager = PVSessionManager()
 
-    // Intialized in the init method and is never deallocated. It is assumed to always exist
-    var networkManager: SessionManager!
-    
     var googleCloudAPIKey: String?
+    
+    var awsAccessKeyId: String?
+    
+    var awsPKey: String?
     
     override init ()
     {
@@ -26,28 +28,60 @@ class PVSessionManager: NSObject
         
         print("Initializing Session")
         
-        //initialize alamofire network manager
-        let configuration = URLSessionConfiguration.default
-        configuration.httpMaximumConnectionsPerHost = 10
-        configuration.timeoutIntervalForRequest = 30
-        
-        networkManager = SessionManager(configuration: configuration)
-        
         // Initialize Keys stored on client
         if let path = Bundle.main.path(forResource: "Keys", ofType: "plist") {
             let keys = NSDictionary(contentsOfFile: path)
             
-            if let storedKey = keys?.object(forKey: "googleCloudAPIKey") as? String
+            if let googleKey = keys?.object(forKey: "googleCloudAPIKey") as? String
             {
-                googleCloudAPIKey = storedKey
+                googleCloudAPIKey = googleKey
+            }
+            
+            if let amazonKey = keys?.object(forKey: "AWSAccessKeyId") as? String
+            {
+                awsAccessKeyId = amazonKey
+            }
+            
+            if let amazonPKey = keys?.object(forKey: "awsPKey") as? String
+            {
+                awsPKey = amazonPKey
             }
         }
+    }
+    
+    // MARK: Public Methods
+    
+    func findSimilarProducts(image: UIImage, completionHandler: PVCompletionBlock?)
+    {
+        analyzeImage(image: image, completionHandler: {(success, error, response) -> Void in
+            
+            if success
+            {
+                if let logoName = response as? String
+                {
+                    self.searchAmazon(searchQuery: logoName, completionHandler: { (success, error, response) -> Void in
+                        
+                        if (success) {
+                            
+                        }
+                    })
+                }
+            }
+            else
+            {
+                // On error, passthrough completion block
+                if let completion = completionHandler
+                {
+                    completion(success, error, response)
+                }
+            }
+        })
     }
     
     // MARK: Google Cloud Vision
     
     // Analyze Image with Google Cloud Vision API
-    func analyzeImage(image: UIImage, completionHandler: PVCompletionBlock?) {
+    private func analyzeImage(image: UIImage, completionHandler: PVCompletionBlock?) {
         
         let base64String = base64EncodeImage(image)
         
@@ -156,5 +190,101 @@ class PVSessionManager: NSObject
     }
     
     // MARK: Amazon Search
+    func searchAmazon(searchQuery: String, completionHandler: PVCompletionBlock)
+    {        
+        if let searchQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+            let responseGroup = "Images,ItemAttributes,Offers".stringByAddingPercentEncodingForRFC3986(),
+            let dateString = Date().iso8601.stringByAddingPercentEncodingForRFC3986()
+        {
+            var params = [String]()
+            
+            params.append("AWSAccessKeyId=" + awsAccessKeyId!)
+            params.append("AssociateTag=" + "PutYourAssociateTagHere")
+            params.append("Keywords=" + searchQuery)
+            params.append("Operation=" + "ItemSearch")
+            params.append("ResponseGroup=" + responseGroup)
+            params.append("SearchIndex=" + "All")
+            params.append("Service=" + "AWSECommerceService")
+            params.append("Timestamp=" + dateString)
+            params.append("Version=" + "2011-08-01")
+
+            params.sort()
+            var paramString = params.joined(separator: "&")
+            
+            // Add signature with hmac256 encryption
+            if let signature = awsSignature(paramString: paramString)
+            {
+                paramString += ("&Signature=" + signature)
+            }
+            
+            print("Param string before: \(paramString)")
+            // Build Request
+            let url = URL(string: "http://ecs.amazonaws.com/onca/xml" + "?" + paramString)!
+            
+            print(url)
+            
+            var request = URLRequest(url: url)
+  
+            request.httpMethod = "GET"
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else {
+                    print(error?.localizedDescription ?? "No data")
+                    return
+                }
+                
+                if let dataString = String(data: data, encoding: .utf8)
+                {
+                    let xml = SWXMLHash.parse(dataString)
+                    
+                    var productDicts = Array<Dictionary<String,Any>>()
+                    
+                    xml["ItemSearchResponse"]["Items"]["Item"].all.map { item in
+                     
+                        var product = Dictionary<String,Any>()
+                        
+                        if let productTitle = item["ItemAttributes"]["Title"].element?.text
+                        {
+                            product["productTitle"] = productTitle
+                        }
+                        
+                        if let productPrice = item["ItemAttributes"]["ListPrice"]["FormattedPrice"].element?.text
+                        {
+                            product["productPrice"] = productPrice                        }
+                        
+                        if let imageUrl = item["ItemAttributes"]["MediumImage"]["URL"].element?.text
+                        {
+                            product["imageUrl"] = imageUrl
+                        }
+                        
+                        productDicts.append(product)
+                    }
+                    
+                    // Serialize Products
+                    var products = Mapper<Product>().mapArray(JSONArray: productDicts)
+                }
+
+                
+                
+                
+                
+                
+                let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
+                if let responseJSON = responseJSON as? [String: Any] {
+                    print(responseJSON)
+                }
+            }
+            
+            task.resume()
+        }
+    }
     
+    func awsSignature(paramString: String) -> String? {
+        
+        let stringToSign = "GET" + "\n" + "ecs.amazonaws.com" + "\n" + "/onca/xml" + "\n" + paramString
+        
+        let signature: String = stringToSign.hmac(algorithm: HMACAlgorithm.SHA256, key: awsPKey!).stringByAddingPercentEncodingForRFC3986()!
+
+        return signature
+    }
 }
