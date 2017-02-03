@@ -15,6 +15,8 @@ class CameraViewController: UIViewController, UIImagePickerControllerDelegate, U
     
     let spinner = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
     
+    var firstLaunch = true
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -22,11 +24,9 @@ class CameraViewController: UIViewController, UIImagePickerControllerDelegate, U
         
         picker.delegate = self
         
-        spinner.isHidden = true
         spinner.color = UIColor.lightGray
         spinner.hidesWhenStopped = true
-        
-//        showCamera()
+        view.addSubview(spinner)
     }
     
     override func viewDidLayoutSubviews() {
@@ -35,31 +35,15 @@ class CameraViewController: UIViewController, UIImagePickerControllerDelegate, U
         spinner.center = view.center
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
-        spinner.startAnimating()
-        
-        PVSessionManager.sharedManager.searchAmazon(searchQuery: "Miller Lite", completionHandler: { (success, error, response) -> Void in
-            
-            DispatchQueue.main.async {
-                self.spinner.stopAnimating()
-            }
-            
-            if (success) {
-                if let response = response
-                {
-                    print(response)
-                }
-            }
-            else {
-                if let error = error
-                {
-                    print(error)
-                    
-                }
-            }
-        })
+        if firstLaunch
+        {
+            showCamera()
+
+            firstLaunch = false
+        }
     }
     
     // MARK: Actions
@@ -81,17 +65,45 @@ class CameraViewController: UIViewController, UIImagePickerControllerDelegate, U
         // Here's the image we picked
         if let chosenImage = info[UIImagePickerControllerOriginalImage] as? UIImage
         {
+            spinner.startAnimating()
             
-            PVSessionManager.sharedManager.findSimilarProducts(image: chosenImage, completionHandler: { (success, error, response) -> Void in
+            PVSessionManager.sharedManager.findSimilarProducts(image: chosenImage, completionBlock: { (success, error, response) -> Void in
                 
                 if (success) {
                     // SUCCESS! Proceed
+                    if let products = response as? Array<Product>
+                    {
+                        // Show products on next screen
+                        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+                        
+                        if let vc = storyboard.instantiateViewController(withIdentifier: "ResultsViewController") as? ResultsViewController
+                        {
+                            vc.products = products
+                            
+                            vc.navigationController?.navigationItem.backBarButtonItem = UIBarButtonItem(title: " ", style: .plain, target: self, action: nil)
+                            
+                            DispatchQueue.main.async {
+                                self.navigationController?.pushViewController(vc, animated: true)
+                            }
+                        }
+                    }
                 }
                 else {
                     if let errorMessage = error
                     {
+                        DispatchQueue.main.async {
+                            
+                            let alert = UIAlertController(title: errorMessage, message: nil, preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                            self.present(alert, animated: true, completion: nil)
+                        }
+                    
                         print(errorMessage)
                     }
+                }
+                
+                DispatchQueue.main.async {
+                    self.spinner.stopAnimating()
                 }
             })
         }

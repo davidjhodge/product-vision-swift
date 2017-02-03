@@ -17,6 +17,8 @@ class Product: AnyObject, Mappable
     
     var productPrice: String?
     
+    var outboundUrlString: String?
+    
     required init?(map: Map) {
         
     }
@@ -25,6 +27,7 @@ class Product: AnyObject, Mappable
     {
         imageUrl                   <- (map["imageUrl"], URLTransform())
         productTitle               <- map["productTitle"]
-        productPrice                <- map["productPrice"]
+        productPrice               <- map["productPrice"]
+        outboundUrlString          <- map["outboundUrl"]
     }
 }

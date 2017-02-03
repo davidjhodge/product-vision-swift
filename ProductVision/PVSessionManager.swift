@@ -51,7 +51,7 @@ class PVSessionManager: NSObject
     
     // MARK: Public Methods
     
-    func findSimilarProducts(image: UIImage, completionHandler: PVCompletionBlock?)
+    func findSimilarProducts(image: UIImage, completionBlock: PVCompletionBlock?)
     {
         analyzeImage(image: image, completionHandler: {(success, error, response) -> Void in
             
@@ -61,8 +61,9 @@ class PVSessionManager: NSObject
                 {
                     self.searchAmazon(searchQuery: logoName, completionHandler: { (success, error, response) -> Void in
                         
-                        if (success) {
-                            
+                        if let completion = completionBlock
+                        {
+                            completion(success,error,response)
                         }
                     })
                 }
@@ -70,7 +71,7 @@ class PVSessionManager: NSObject
             else
             {
                 // On error, passthrough completion block
-                if let completion = completionHandler
+                if let completion = completionBlock
                 {
                     completion(success, error, response)
                 }
@@ -138,6 +139,8 @@ class PVSessionManager: NSObject
                             {
                                 print(logoName)
                                 completion(true, "", logoName)
+                                
+                                return
                             }
                         }
                     }
@@ -147,6 +150,8 @@ class PVSessionManager: NSObject
                         {
                             completion(true, "We couldn't detect any items in that image.", nil)
                         }
+                        
+                        return
                     }
                 }
                 
@@ -190,7 +195,7 @@ class PVSessionManager: NSObject
     }
     
     // MARK: Amazon Search
-    func searchAmazon(searchQuery: String, completionHandler: PVCompletionBlock)
+    func searchAmazon(searchQuery: String, completionHandler: PVCompletionBlock?)
     {        
         if let searchQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
             let responseGroup = "Images,ItemAttributes,Offers".stringByAddingPercentEncodingForRFC3986(),
@@ -217,12 +222,9 @@ class PVSessionManager: NSObject
                 paramString += ("&Signature=" + signature)
             }
             
-            print("Param string before: \(paramString)")
             // Build Request
             let url = URL(string: "http://ecs.amazonaws.com/onca/xml" + "?" + paramString)!
-            
-            print(url)
-            
+
             var request = URLRequest(url: url)
   
             request.httpMethod = "GET"
@@ -252,30 +254,40 @@ class PVSessionManager: NSObject
                         {
                             product["productPrice"] = productPrice                        }
                         
-                        if let imageUrl = item["ItemAttributes"]["MediumImage"]["URL"].element?.text
+                        if let imageUrl = item["LargeImage"]["URL"].element?.text
                         {
                             product["imageUrl"] = imageUrl
+                        }
+                        
+                        if let outboundUrl = item["DetailPageURL"].element?.text
+                        {
+                            product["outboundUrl"] = outboundUrl
                         }
                         
                         productDicts.append(product)
                     }
                     
                     // Serialize Products
-                    var products = Mapper<Product>().mapArray(JSONArray: productDicts)
+                    let products = Mapper<Product>().mapArray(JSONArray: productDicts)
+                    
+                    if let completion = completionHandler
+                    {
+                        completion(true, "", products)
+                    }
+                    
+                    return
                 }
-
                 
-                
-                
-                
-                
-                let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
-                if let responseJSON = responseJSON as? [String: Any] {
-                    print(responseJSON)
+                if let completion = completionHandler
+                {
+                    completion(false, "Amazon search query did not return successfully.", nil)
                 }
+                
+                return
             }
             
             task.resume()
+            
         }
     }
     

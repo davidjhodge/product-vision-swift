@@ -9,8 +9,7 @@
 import Foundation
 import UIKit
 import SDWebImage
-// Temp
-import ObjectMapper
+import SafariServices
 
 class ResultsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate
 {
@@ -22,14 +21,6 @@ class ResultsViewController: UIViewController, UITableViewDataSource, UITableVie
         super.viewDidLoad()
         
         title = "Similar Products"
-        
-        // Dummy info
-        if let product = Mapper<Product>().map(JSON: ["imageUrl": "https://images-na.ssl-images-amazon.com/images/I/51Rf7pJ8vrL._SX466_.jpg",
-                                                   "productTitle": "Kit Kat Valentines Fun SIze Bars (32 Ounce)",
-                                                   "productPrice": "$10.99"])
-        {
-            products = [product]
-        }
     }
     
     // MARK: Table View Data Source
@@ -90,6 +81,29 @@ class ResultsViewController: UIViewController, UITableViewDataSource, UITableVie
     // MARK: Table View Delegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        if let products = products
+        {
+            let product = products[indexPath.row]
+            
+            if let urlString = product.outboundUrlString
+            {
+                if let outboundUrl = URL(string: urlString)
+                {
+                    let safariVc = SFSafariViewController(url: outboundUrl)
+                    
+                    present(safariVc, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableViewAutomaticDimension;
+    }
+    
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 140
     }
     
     
